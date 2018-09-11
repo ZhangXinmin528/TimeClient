@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">TimeClient</string>
+    <string name="all_title_ip">IP地址:</string>
+    <string name="all_title_ip_port">端口号:</string>
+    <string name="all_title_msg">发送的消息:</string>
+    <string name="btn_build_connect">建立连接</string>
+    <string name="btn_build_disconnect">断开连接</string>
+    <string name="btn_build_reconnect">重新连接</string>
+    <string name="btn_build_send_face">发送图片</string>
+    <string name="btn_build_receive_msg">接收消息</string>
+    <string name="btn_start">开始命令</string>
+    <string name="btn_exit">退出命令</string>
+    <string name="all_info_connect">日志信息:%1$s</string>
+</resources>
