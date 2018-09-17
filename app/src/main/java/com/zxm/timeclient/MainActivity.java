@@ -7,7 +7,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.zxm.libclient.SocketClient;
+import com.zxm.libclient_v1.SocketClient;
+import com.zxm.libclient_v1.handler.TimeClientHandle;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -52,10 +53,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //客户端并建立连接
                 final String ip = mIpEt.getText().toString().trim();
                 final String port = mPortEt.getText().toString().trim();
-                SocketClient
-                        .getInstance()
-                        .onConfig(ip, Integer.parseInt(port))
-                        .onConnect();
+                new Thread(new TimeClientHandle(ip,Integer.parseInt(port)),"TimeClient-001")
+                        .start();
                 break;
             //断开连接
             case R.id.btn_build_close:

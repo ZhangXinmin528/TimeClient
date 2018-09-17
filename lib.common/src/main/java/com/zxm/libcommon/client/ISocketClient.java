@@ -59,7 +59,7 @@ public interface ISocketClient {
 
         @Override
         public ISocketClient onConfig(@NonNull String host, int port) {
-            return null;
+            return this;
         }
 
         @Override

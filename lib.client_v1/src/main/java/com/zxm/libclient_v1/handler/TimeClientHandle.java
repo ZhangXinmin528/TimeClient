@@ -1,9 +1,5 @@
 package com.zxm.libclient_v1.handler;
 
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
-import android.text.TextUtils;
-
 import com.zxm.libcommon.util.Logger;
 
 import java.io.IOException;
@@ -16,10 +12,12 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Created by ZhangXinmin on 2018/9/12.
+ * Created by ZhangXinmin on 2018/9/17.
  * Copyright (c) 2018 . All rights reserved.
+ * 存在bug,无法接收到消息
  */
-public class TimeServerHandler implements Runnable {
+public class TimeClientHandle implements Runnable {
+
     private String host;
     private int port;
 
@@ -27,36 +25,39 @@ public class TimeServerHandler implements Runnable {
     private SocketChannel socketChannel;
     private volatile boolean stop;
 
-    public TimeServerHandler(@NonNull String host,
-                             @IntRange(from = 0, to = Integer.MAX_VALUE) int port) {
+    public TimeClientHandle(String host, int port) {
         this.host = host;
         this.port = port;
+        try {
+            selector = Selector.open();
+            socketChannel = SocketChannel.open();
+            socketChannel.configureBlocking(false);
+        } catch (IOException e) {
+            Logger.e("Socket init error ：" + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     @Override
     public void run() {
-
-        try {
-            doConnect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        doConnect();
 
         while (!stop) {
             try {
                 selector.select(1000);
-
                 Set<SelectionKey> selectedKeys = selector.selectedKeys();
                 Iterator<SelectionKey> it = selectedKeys.iterator();
                 SelectionKey key = null;
                 while (it.hasNext()) {
                     key = it.next();
+                    Logger.d("Socket key isReadable :" + key.isReadable());
                     it.remove();
                     try {
                         handleInput(key);
                     } catch (IOException e) {
                         e.printStackTrace();
+                        Logger.e("Socket init error ：" + e.getMessage());
                         if (key != null) {
                             key.cancel();
                             if (key.channel() != null) {
@@ -70,7 +71,6 @@ public class TimeServerHandler implements Runnable {
                 System.exit(1);
             }
         }
-
     }
 
     private void handleInput(SelectionKey key) throws IOException {
@@ -85,8 +85,8 @@ public class TimeServerHandler implements Runnable {
                 } else {
                     //连接失败，进程退出
                     System.exit(1);
+                    Logger.e("Socket build connection failed");
                 }
-
                 if (key.isReadable()) {
                     ByteBuffer readBuffer = ByteBuffer.allocate(1024);
                     int readBytes = sc.read(readBuffer);
@@ -110,13 +110,19 @@ public class TimeServerHandler implements Runnable {
         }
     }
 
-    private void doConnect() throws IOException {
+    private void doConnect() {
         //如果直接连接成功，则注册到多路复用器上，发送请求信息，读应答
-        if (socketChannel.connect(new InetSocketAddress(host, port))) {
-            socketChannel.register(selector, SelectionKey.OP_READ);
-            doWrite(socketChannel);
-        } else {
-            socketChannel.register(selector, SelectionKey.OP_CONNECT);
+        try {
+            if (socketChannel.connect(new InetSocketAddress(host, port))) {
+                socketChannel.register(selector, SelectionKey.OP_READ);
+                doWrite(socketChannel);
+            } else {
+                socketChannel.register(selector, SelectionKey.OP_CONNECT);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Logger.e("Socket build connection failed : " + e.getMessage());
+            System.exit(1);
         }
     }
 
@@ -128,7 +134,7 @@ public class TimeServerHandler implements Runnable {
         writeBuffer.flip();
         channel.write(writeBuffer);
         if (!writeBuffer.hasRemaining()) {
-            Logger.d("Send order to server");
+            Logger.d("Socket send message to server");
         }
     }
 }
