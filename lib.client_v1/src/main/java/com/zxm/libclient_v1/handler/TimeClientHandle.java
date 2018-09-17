@@ -51,7 +51,6 @@ public class TimeClientHandle implements Runnable {
                 SelectionKey key = null;
                 while (it.hasNext()) {
                     key = it.next();
-                    Logger.d("Socket key isReadable :" + key.isReadable());
                     it.remove();
                     try {
                         handleInput(key);

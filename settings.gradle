@@ -1,1 +1,1 @@
-include ':app', ':lib.client_v0', ':lib.common', ':lib.client_v1'
+include ':app', ':lib.client_v0', ':lib.common', ':lib.client_v1', ':lib.client_v2'

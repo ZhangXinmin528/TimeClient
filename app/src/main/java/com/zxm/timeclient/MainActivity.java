@@ -1,14 +1,15 @@
 package com.zxm.timeclient;
 
 import android.content.Context;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.zxm.libclient_v1.SocketClient;
-import com.zxm.libclient_v1.handler.TimeClientHandle;
+import com.zxm.libclient_v2.AsyncTimeClientHandler;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mInfoTv = findViewById(R.id.tv_info);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -53,7 +55,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //客户端并建立连接
                 final String ip = mIpEt.getText().toString().trim();
                 final String port = mPortEt.getText().toString().trim();
-                new Thread(new TimeClientHandle(ip,Integer.parseInt(port)),"TimeClient-001")
+//                SocketClient.getInstance()
+//                        .onConfig(ip,Integer.parseInt(port))
+//                        .onConnect();
+
+//                new Thread(new TimeClientHandle(ip,Integer.parseInt(port)),"TimeClient-001")
+//                        .start();
+
+                new Thread(new AsyncTimeClientHandler(ip,Integer.parseInt(port)),"AIOTimeClient-001")
                         .start();
                 break;
             //断开连接
